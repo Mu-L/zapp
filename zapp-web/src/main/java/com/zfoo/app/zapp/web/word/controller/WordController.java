@@ -202,7 +202,7 @@ public class WordController {
         if (StringUtils.isBlank(word)) {
             return BaseResponse.valueOf(CodeEnum.WORD_EMPTY_ERROR);
         }
-        if (!StringUtils.isBlank(background)) {
+        if (StringUtils.isNotBlank(background)) {
             if (!HttpUtils.isHttpUrl(background) || !background.startsWith(OssPolicyEnum.WORD_BACKGROUND.getUrl())) {
                 return BaseResponse.valueOf(CodeEnum.PARAMETER_URL_ERROR);
             }
@@ -292,7 +292,7 @@ public class WordController {
         if (StringUtils.isBlank(name)) {
             return BaseResponse.valueOf(CodeEnum.WORD_EMPTY_ERROR);
         }
-        if (!StringUtils.isBlank(background)) {
+        if (StringUtils.isNotBlank(background)) {
             if (!HttpUtils.isHttpUrl(background) || !background.startsWith(OssPolicyEnum.WORD_BACKGROUND.getUrl())) {
                 return BaseResponse.valueOf(CodeEnum.PARAMETER_URL_ERROR);
             }

@@ -254,7 +254,7 @@ public class UserController {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_ERROR_ONE);
         }
 
-        if (!StringUtils.isBlank(signature) && signature.length() > AppConstant.USER_SIGNATURE_MAX_LENGTH) {
+        if (StringUtils.isNotBlank(signature) && signature.length() > AppConstant.USER_SIGNATURE_MAX_LENGTH) {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_ERROR_TWO);
         }
 

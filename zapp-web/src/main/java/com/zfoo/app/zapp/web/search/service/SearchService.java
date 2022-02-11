@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -69,7 +68,7 @@ public class SearchService implements ISearchService {
                     collection.find(Filters.regex("content", regex))
                             .projection(Projections.include("_id"))
                             .sort(Sorts.descending("love"))
-                            .forEach((Consumer<TimeSliceEntity>) entity -> contentList.add(entity.getId()));
+                            .forEach(entity -> contentList.add(entity.getId()));
 
                     // location匹配
                     var locationId = LocationConstant.locationNameMap.get(query);
@@ -152,7 +151,7 @@ public class SearchService implements ISearchService {
                 .filter(it -> ArrayUtils.isNotEmpty(it.termNatures().termNatures))
                 .filter(it -> Arrays.stream(it.termNatures().termNatures).anyMatch(nature -> nature.nature.natureStr.contains("n")))
                 .map(it -> it.getName().trim())
-                .filter(it -> !StringUtils.isBlank(it))
+                .filter(it -> StringUtils.isNotBlank(it))
                 .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(words)) {

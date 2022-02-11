@@ -132,7 +132,7 @@ public class CoinController {
             }
             coinConsume = coinConsume + selectedImages.size() * AppConstant.DOWNLOAD_IMAGE_COIN_CONSUME;
         } else {
-            if (video != null && !StringUtils.isBlank(video.getUrl())) {
+            if (video != null && StringUtils.isNotBlank(video.getUrl())) {
                 coinConsume = coinConsume + AppConstant.DOWNLOAD_VIDEO_COIN_CONSUME;
             }
         }
@@ -175,7 +175,7 @@ public class CoinController {
                 downloadUrls.addAll(selectedImageList);
             }
         }
-        if (video != null && !StringUtils.isBlank(video.getUrl())) {
+        if (video != null && StringUtils.isNotBlank(video.getUrl())) {
             downloadUrls.add(video.getPoster());
             downloadUrls.add(video.getUrl());
         }

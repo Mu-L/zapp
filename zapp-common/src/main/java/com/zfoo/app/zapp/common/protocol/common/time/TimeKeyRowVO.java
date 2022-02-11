@@ -418,163 +418,160 @@ public class TimeKeyRowVO implements IPacket {
      * 判断所有的列的内容是否都为空，只要有一个不为空就返回true
      */
     public boolean notAllBlank() {
-        if (!StringUtils.isBlank(a)) {
+        if (StringUtils.isNotBlank(a)) {
             return true;
         }
-        if (!StringUtils.isBlank(b)) {
+        if (StringUtils.isNotBlank(b)) {
             return true;
         }
-        if (!StringUtils.isBlank(c)) {
+        if (StringUtils.isNotBlank(c)) {
             return true;
         }
-        if (!StringUtils.isBlank(d)) {
+        if (StringUtils.isNotBlank(d)) {
             return true;
         }
-        if (!StringUtils.isBlank(e)) {
+        if (StringUtils.isNotBlank(e)) {
             return true;
         }
-        if (!StringUtils.isBlank(f)) {
+        if (StringUtils.isNotBlank(f)) {
             return true;
         }
-        if (!StringUtils.isBlank(g)) {
+        if (StringUtils.isNotBlank(g)) {
             return true;
         }
-        if (!StringUtils.isBlank(h)) {
+        if (StringUtils.isNotBlank(h)) {
             return true;
         }
-        if (!StringUtils.isBlank(i)) {
+        if (StringUtils.isNotBlank(i)) {
             return true;
         }
-        if (!StringUtils.isBlank(j)) {
+        if (StringUtils.isNotBlank(j)) {
             return true;
         }
-        if (!StringUtils.isBlank(k)) {
+        if (StringUtils.isNotBlank(k)) {
             return true;
         }
-        if (!StringUtils.isBlank(l)) {
+        if (StringUtils.isNotBlank(l)) {
             return true;
         }
-        if (!StringUtils.isBlank(m)) {
+        if (StringUtils.isNotBlank(m)) {
             return true;
         }
-        if (!StringUtils.isBlank(n)) {
+        if (StringUtils.isNotBlank(n)) {
             return true;
         }
-        if (!StringUtils.isBlank(o)) {
+        if (StringUtils.isNotBlank(o)) {
             return true;
         }
-        if (!StringUtils.isBlank(p)) {
+        if (StringUtils.isNotBlank(p)) {
             return true;
         }
-        if (!StringUtils.isBlank(q)) {
+        if (StringUtils.isNotBlank(q)) {
             return true;
         }
-        if (!StringUtils.isBlank(r)) {
+        if (StringUtils.isNotBlank(r)) {
             return true;
         }
-        if (!StringUtils.isBlank(s)) {
+        if (StringUtils.isNotBlank(s)) {
             return true;
         }
-        if (!StringUtils.isBlank(t)) {
+        if (StringUtils.isNotBlank(t)) {
             return true;
         }
-        if (!StringUtils.isBlank(u)) {
+        if (StringUtils.isNotBlank(u)) {
             return true;
         }
-        if (!StringUtils.isBlank(v)) {
+        if (StringUtils.isNotBlank(v)) {
             return true;
         }
-        if (!StringUtils.isBlank(w)) {
+        if (StringUtils.isNotBlank(w)) {
             return true;
         }
-        if (!StringUtils.isBlank(x)) {
+        if (StringUtils.isNotBlank(x)) {
             return true;
         }
-        if (!StringUtils.isBlank(y)) {
+        if (StringUtils.isNotBlank(y)) {
             return true;
         }
-        if (!StringUtils.isBlank(z)) {
+        if (StringUtils.isNotBlank(z)) {
             return true;
         }
-        if (!StringUtils.isBlank(aa)) {
+        if (StringUtils.isNotBlank(aa)) {
             return true;
         }
-        if (!StringUtils.isBlank(ab)) {
+        if (StringUtils.isNotBlank(ab)) {
             return true;
         }
-        if (!StringUtils.isBlank(ac)) {
+        if (StringUtils.isNotBlank(ac)) {
             return true;
         }
-        if (!StringUtils.isBlank(ad)) {
+        if (StringUtils.isNotBlank(ad)) {
             return true;
         }
-        if (!StringUtils.isBlank(ae)) {
+        if (StringUtils.isNotBlank(ae)) {
             return true;
         }
-        if (!StringUtils.isBlank(af)) {
+        if (StringUtils.isNotBlank(af)) {
             return true;
         }
-        if (!StringUtils.isBlank(ag)) {
+        if (StringUtils.isNotBlank(ag)) {
             return true;
         }
-        if (!StringUtils.isBlank(ah)) {
+        if (StringUtils.isNotBlank(ah)) {
             return true;
         }
-        if (!StringUtils.isBlank(ai)) {
+        if (StringUtils.isNotBlank(ai)) {
             return true;
         }
-        if (!StringUtils.isBlank(aj)) {
+        if (StringUtils.isNotBlank(aj)) {
             return true;
         }
-        if (!StringUtils.isBlank(ak)) {
+        if (StringUtils.isNotBlank(ak)) {
             return true;
         }
-        if (!StringUtils.isBlank(al)) {
+        if (StringUtils.isNotBlank(al)) {
             return true;
         }
-        if (!StringUtils.isBlank(am)) {
+        if (StringUtils.isNotBlank(am)) {
             return true;
         }
-        if (!StringUtils.isBlank(an)) {
+        if (StringUtils.isNotBlank(an)) {
             return true;
         }
-        if (!StringUtils.isBlank(ao)) {
+        if (StringUtils.isNotBlank(ao)) {
             return true;
         }
-        if (!StringUtils.isBlank(ap)) {
+        if (StringUtils.isNotBlank(ap)) {
             return true;
         }
-        if (!StringUtils.isBlank(aq)) {
+        if (StringUtils.isNotBlank(aq)) {
             return true;
         }
-        if (!StringUtils.isBlank(ar)) {
+        if (StringUtils.isNotBlank(ar)) {
             return true;
         }
-        if (!StringUtils.isBlank(as)) {
+        if (StringUtils.isNotBlank(as)) {
             return true;
         }
-        if (!StringUtils.isBlank(at)) {
+        if (StringUtils.isNotBlank(at)) {
             return true;
         }
-        if (!StringUtils.isBlank(au)) {
+        if (StringUtils.isNotBlank(au)) {
             return true;
         }
-        if (!StringUtils.isBlank(av)) {
+        if (StringUtils.isNotBlank(av)) {
             return true;
         }
-        if (!StringUtils.isBlank(aw)) {
+        if (StringUtils.isNotBlank(aw)) {
             return true;
         }
-        if (!StringUtils.isBlank(ax)) {
+        if (StringUtils.isNotBlank(ax)) {
             return true;
         }
-        if (!StringUtils.isBlank(ay)) {
+        if (StringUtils.isNotBlank(ay)) {
             return true;
         }
-        if (!StringUtils.isBlank(az)) {
-            return true;
-        }
-        return false;
+        return StringUtils.isNotBlank(az);
     }
 
     public String getA() {

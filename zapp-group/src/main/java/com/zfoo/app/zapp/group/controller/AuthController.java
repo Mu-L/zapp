@@ -196,14 +196,14 @@ public class AuthController {
                 NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.PARAMETER_NOT_MATCH.getCode()), gatewayAttachment);
                 return;
             }
-            if (!StringUtils.isBlank(color) && color.length() != AppConstant.GROUP_AUTH_COLOR_LENGTH) {
+            if (StringUtils.isNotBlank(color) && color.length() != AppConstant.GROUP_AUTH_COLOR_LENGTH) {
                 NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.PARAMETER_ERROR_TWO.getCode()), gatewayAttachment);
                 return;
             }
 
             // 默认身份不能删除，不能改名，不能改颜色，仅可改权限
             if (groupAuthId == AppConstant.GROUP_AUTH_DEFAULT_ID) {
-                if (!AppConstant.GROUP_AUTH_DEFAULT_NAME.equals(name) || !StringUtils.isBlank(color)) {
+                if (!AppConstant.GROUP_AUTH_DEFAULT_NAME.equals(name) || StringUtils.isNotBlank(color)) {
                     NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.PARAMETER_ERROR_THREE.getCode()), gatewayAttachment);
                     return;
                 }

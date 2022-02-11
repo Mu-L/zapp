@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -70,17 +69,17 @@ public class WordService implements IWordService {
     /**
      * 提示相关
      */
-    private Cache<String, List<PairLS>> personHintCaches = Caffeine.newBuilder()
+    private final Cache<String, List<PairLS>> personHintCaches = Caffeine.newBuilder()
             .expireAfterAccess(3 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS)
             .maximumSize(1_0000)
             .recordStats()
             .build();
-    private Cache<String, List<PairLS>> wordHintCaches = Caffeine.newBuilder()
+    private final Cache<String, List<PairLS>> wordHintCaches = Caffeine.newBuilder()
             .expireAfterAccess(3 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS)
             .maximumSize(1_0000)
             .recordStats()
             .build();
-    private Cache<String, List<PairLS>> categoryHintCaches = Caffeine.newBuilder()
+    private final Cache<String, List<PairLS>> categoryHintCaches = Caffeine.newBuilder()
             .expireAfterAccess(3 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS)
             .maximumSize(1_0000)
             .recordStats()
@@ -100,7 +99,7 @@ public class WordService implements IWordService {
         collection.find(Filters.regex("word", regex))
                 .limit(hintSize)
                 .map(it -> PairLS.valueOf(it.getId(), it.getWord()))
-                .forEach((Consumer<PairLS>) pair -> result.add(pair));
+                .forEach(pair -> result.add(pair));
 
         personHintCaches.put(name, result);
         return result;
@@ -120,7 +119,7 @@ public class WordService implements IWordService {
         collection.find(Filters.regex("word", regex))
                 .limit(hintSize)
                 .map(it -> PairLS.valueOf(it.getId(), it.getWord()))
-                .forEach((Consumer<PairLS>) pair -> result.add(pair));
+                .forEach(pair -> result.add(pair));
 
         wordHintCaches.put(name, result);
         return result;
@@ -140,7 +139,7 @@ public class WordService implements IWordService {
         collection.find(Filters.regex("name", regex))
                 .limit(hintSize)
                 .map(it -> PairLS.valueOf(it.getId(), it.getName()))
-                .forEach((Consumer<PairLS>) pair -> result.add(pair));
+                .forEach(pair -> result.add(pair));
 
         categoryHintCaches.put(name, result);
         return result;
@@ -154,7 +153,7 @@ public class WordService implements IWordService {
         return wordCaches.batchGet(words)
                 .entrySet()
                 .stream()
-                .filter(it -> !StringUtils.isBlank(it.getValue()))
+                .filter(it -> StringUtils.isNotBlank(it.getValue()))
                 .map(it -> new Pair<>(it.getKey(), it.getValue()))
                 .collect(Collectors.toList());
     }
@@ -167,7 +166,7 @@ public class WordService implements IWordService {
         return personCaches.batchGet(persons)
                 .entrySet()
                 .stream()
-                .filter(it -> !StringUtils.isBlank(it.getValue()))
+                .filter(it -> StringUtils.isNotBlank(it.getValue()))
                 .map(it -> new Pair<>(it.getKey(), it.getValue()))
                 .collect(Collectors.toList());
     }
@@ -180,7 +179,7 @@ public class WordService implements IWordService {
         return categoryCaches.batchGet(categories)
                 .entrySet()
                 .stream()
-                .filter(it -> !StringUtils.isBlank(it.getValue()))
+                .filter(it -> StringUtils.isNotBlank(it.getValue()))
                 .map(it -> new Pair<>(it.getKey(), it.getValue()))
                 .collect(Collectors.toList());
     }

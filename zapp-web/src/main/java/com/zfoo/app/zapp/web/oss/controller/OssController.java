@@ -230,14 +230,14 @@ public class OssController {
         var policyAndUrls = new ArrayList<Pair<OssPolicyEnum, String>>();
 
         if (CollectionUtils.isNotEmpty(images)) {
-            images.stream().filter(it -> !StringUtils.isBlank(it)).forEach(it -> policyAndUrls.add(new Pair<>(OssPolicyEnum.IMAGE, it)));
+            images.stream().filter(it -> StringUtils.isNotBlank(it)).forEach(it -> policyAndUrls.add(new Pair<>(OssPolicyEnum.IMAGE, it)));
         }
 
         if (video != null) {
-            if (!StringUtils.isBlank(video.getPoster())) {
+            if (StringUtils.isNotBlank(video.getPoster())) {
                 policyAndUrls.add(new Pair<>(OssPolicyEnum.VIDEO, video.getPoster()));
             }
-            if (!StringUtils.isBlank(video.getUrl())) {
+            if (StringUtils.isNotBlank(video.getUrl())) {
                 policyAndUrls.add(new Pair<>(OssPolicyEnum.VIDEO, video.getUrl()));
             }
         }

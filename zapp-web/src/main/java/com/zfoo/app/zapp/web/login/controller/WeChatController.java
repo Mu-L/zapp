@@ -200,7 +200,7 @@ public class WeChatController {
                 var weChatUserInfoResponse = JsonUtils.string2Object(client.send(userInfoRequest, responseBodyHandler).body(), WeChatUserInfoResponse.class);
                 // 将微信的http图片替换成https
                 var avatarUrl = weChatUserInfoResponse.getHeadImgUrl();
-                if (!StringUtils.isBlank(avatarUrl) && avatarUrl.startsWith(HttpUtils.HTTP_PREFIX)) {
+                if (StringUtils.isNotBlank(avatarUrl) && avatarUrl.startsWith(HttpUtils.HTTP_PREFIX)) {
                     weChatUserInfoResponse.setHeadImgUrl(avatarUrl.replaceFirst(HttpUtils.HTTP_PREFIX, HttpUtils.HTTPS_PREFIX));
                 }
 

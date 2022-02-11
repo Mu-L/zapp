@@ -88,7 +88,7 @@ public class SeoController {
                             .build();
                     var baiDuSeoResponse = JsonUtils.string2Object(client.send(seoRequest, responseBodyHandler).body(), BaiDuSeoResponse.class);
 
-                    if (!StringUtils.isBlank(baiDuSeoResponse.getMessage())) {
+                    if (StringUtils.isNotBlank(baiDuSeoResponse.getMessage())) {
                         logger.error("推送失败[error:{}][message:{}]", baiDuSeoResponse.getError(), baiDuSeoResponse.getMessage());
                         return;
                     }

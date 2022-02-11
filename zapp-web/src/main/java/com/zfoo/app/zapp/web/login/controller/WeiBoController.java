@@ -199,7 +199,7 @@ public class WeiBoController {
                 var weiBoUserInfoResponse = JsonUtils.string2Object(client.send(userInfoRequest, responseBodyHandler).body(), WeiboUserInfoResponse.class);
                 // 将微博的http图片替换成https
                 var avatarUrl = weiBoUserInfoResponse.getProfileImageUrl();
-                if (!StringUtils.isBlank(avatarUrl) && avatarUrl.startsWith(HttpUtils.HTTP_PREFIX)) {
+                if (StringUtils.isNotBlank(avatarUrl) && avatarUrl.startsWith(HttpUtils.HTTP_PREFIX)) {
                     weiBoUserInfoResponse.setProfileImageUrl(avatarUrl.replaceFirst(HttpUtils.HTTP_PREFIX, HttpUtils.HTTPS_PREFIX));
                 }
 

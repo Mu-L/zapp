@@ -60,7 +60,7 @@ public class RecordHub implements IRecordHub {
 
     private static RecordHub instance = null;
 
-    private Map<Class<? extends IRecord<?>>, IRecordPersister> recordPersisterMap = new HashMap<>();
+    private final Map<Class<? extends IRecord<?>>, IRecordPersister> recordPersisterMap = new HashMap<>();
 
     private RecordConfig recordConfig;
 
@@ -111,7 +111,7 @@ public class RecordHub implements IRecordHub {
         builder.setDefaultHeaders(defaultHeaders);
 
         // 设置数据库账号密码
-        if (!StringUtils.isBlank(hostConfig.getUser()) && !StringUtils.isBlank(hostConfig.getPassword())) {
+        if (StringUtils.isNotBlank(hostConfig.getUser()) && StringUtils.isNotBlank(hostConfig.getPassword())) {
             var credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(hostConfig.getUser(), hostConfig.getPassword()));
 
