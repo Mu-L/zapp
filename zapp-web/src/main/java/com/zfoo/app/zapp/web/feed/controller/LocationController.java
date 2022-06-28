@@ -64,10 +64,10 @@ public class LocationController {
 
     private static final Logger logger = LoggerFactory.getLogger(LocationController.class);
 
-    private SimpleCache<Long, List<Long>> locationFeedCaches = SimpleCache.build(
+    private final SimpleCache<Long, List<Long>> locationFeedCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_000
             , locations -> {
-                var locationFeeds = OrmContext.getQuery().queryFieldIn("_id", locations, FeedLocationEntity.class);
+                var locationFeeds = OrmContext.getQuery(FeedLocationEntity.class).in("_id", locations).queryAll();
                 var result = new ArrayList<Pair<Long, List<Long>>>();
                 for (var feed : locationFeeds) {
                     var list = CollectionUtils.listJoinList(true

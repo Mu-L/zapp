@@ -86,7 +86,7 @@ public class SearchService implements ISearchService {
                     }
 
                     // item匹配
-                    var items = OrmContext.getQuery().queryFieldIn("word", List.of(query, query.toLowerCase(), query.toUpperCase()), WordEntity.class);
+                    var items = OrmContext.getQuery(WordEntity.class).in("word", List.of(query, query.toLowerCase(), query.toUpperCase())).queryAll();
                     var itemList = new ArrayList<Long>();
                     if (CollectionUtils.isNotEmpty(items)) {
                         for (var item : items) {
@@ -103,7 +103,7 @@ public class SearchService implements ISearchService {
                     }
 
                     // person匹配
-                    var persons = OrmContext.getQuery().queryFieldIn("word", List.of(query, query.toLowerCase(), query.toUpperCase()), PersonEntity.class);
+                    var persons = OrmContext.getQuery(PersonEntity.class).in("word", List.of(query, query.toLowerCase(), query.toUpperCase())).queryAll();
                     var personList = new ArrayList<Long>();
                     if (CollectionUtils.isNotEmpty(persons)) {
                         for (var person : persons) {

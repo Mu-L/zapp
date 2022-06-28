@@ -72,10 +72,10 @@ public class HomeController {
     private TimeSliceService timeSliceService;
 
 
-    private SimpleCache<Long, List<Long>> homeFeedCaches = SimpleCache.build(
+    private final SimpleCache<Long, List<Long>> homeFeedCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_000
             , ids -> {
-                var homeFeeds = OrmContext.getQuery().queryFieldIn("_id", ids, FeedHomeEntity.class);
+                var homeFeeds = OrmContext.getQuery(FeedHomeEntity.class).in("_id", ids).queryAll();
                 var result = new ArrayList<Pair<Long, List<Long>>>();
                 for (var feed : homeFeeds) {
                     var list = CollectionUtils.listJoinList(true
@@ -90,7 +90,7 @@ public class HomeController {
             , key -> Collections.EMPTY_LIST);
 
 
-    private SimpleCache<Long, List<Long>> subscribeFeedCaches = SimpleCache.build(
+    private final SimpleCache<Long, List<Long>> subscribeFeedCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_000
             , ids -> {
                 try {
@@ -111,7 +111,7 @@ public class HomeController {
                                 .getCollection(FeedLocationEntity.class)
                                 .find(Filters.in("_id", locationTsMap.keySet()))
                                 .projection(Projections.include("_id", "newLinks"))
-                                .forEach((Consumer<FeedLocationEntity>) locationFeedEntity -> locationTsMap.put(locationFeedEntity.getId(), CollectionUtils.listJoinList(true
+                                .forEach(locationFeedEntity -> locationTsMap.put(locationFeedEntity.getId(), CollectionUtils.listJoinList(true
                                         , new Pair<>(AppConstant.STAR_FEED_PAGE_NEW_LINK_SIZE, locationFeedEntity.getNewLinks())
                                         , new Pair<>(AppConstant.STAR_FEED_PAGE_RECOMMEND_LINK_SIZE, locationFeedEntity.getRecommendLinks()))));
                     }
@@ -127,7 +127,7 @@ public class HomeController {
                                 .getCollection(FeedPersonEntity.class)
                                 .find(Filters.in("_id", personTsMap.keySet()))
                                 .projection(Projections.include("_id", "newLinks"))
-                                .forEach((Consumer<FeedPersonEntity>) personFeedEntity -> personTsMap.put(personFeedEntity.getId(), CollectionUtils.listJoinList(true
+                                .forEach(personFeedEntity -> personTsMap.put(personFeedEntity.getId(), CollectionUtils.listJoinList(true
                                         , new Pair<>(AppConstant.STAR_FEED_PAGE_NEW_LINK_SIZE, personFeedEntity.getNewLinks())
                                         , new Pair<>(AppConstant.STAR_FEED_PAGE_RECOMMEND_LINK_SIZE, personFeedEntity.getRecommendLinks()))));
                     }
@@ -143,7 +143,7 @@ public class HomeController {
                                 .getCollection(FeedItemEntity.class)
                                 .find(Filters.in("_id", personTsMap.keySet()))
                                 .projection(Projections.include("_id", "newLinks"))
-                                .forEach((Consumer<FeedItemEntity>) itemFeedEntity -> itemTsMap.put(itemFeedEntity.getId(), CollectionUtils.listJoinList(true
+                                .forEach(itemFeedEntity -> itemTsMap.put(itemFeedEntity.getId(), CollectionUtils.listJoinList(true
                                         , new Pair<>(AppConstant.STAR_FEED_PAGE_NEW_LINK_SIZE, itemFeedEntity.getNewLinks())
                                         , new Pair<>(AppConstant.STAR_FEED_PAGE_RECOMMEND_LINK_SIZE, itemFeedEntity.getRecommendLinks()))));
                     }

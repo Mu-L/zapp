@@ -106,8 +106,8 @@ public class TsUserController {
             return BaseResponse.valueOf(CodeEnum.SIGN_IN_FIRST);
         }
 
-        var tsReviewList = OrmContext.getQuery().queryFieldEqual("userId", userId, TsReviewEntity.class);
-        var tsEditList = OrmContext.getQuery().queryFieldEqual("userId", userId, TsEditEntity.class);
+        var tsReviewList = OrmContext.getQuery(TsReviewEntity.class).eq("userId", userId).queryAll();
+        var tsEditList = OrmContext.getQuery(TsEditEntity.class).eq("userId", userId).queryAll();
 
         var tsReviews = new ArrayList<TimeSliceReviewVO>();
         var tsReviewRejects = new ArrayList<TimeSliceRejectVO>();

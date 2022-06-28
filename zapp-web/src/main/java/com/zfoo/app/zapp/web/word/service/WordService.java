@@ -47,21 +47,21 @@ public class WordService implements IWordService {
      */
     public SimpleCache<Long, String> wordCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
-            , items -> OrmContext.getQuery().queryFieldIn("_id", items, WordEntity.class)
+            , items -> OrmContext.getQuery(WordEntity.class).in("_id", items).queryAll()
                     .stream()
                     .map(it -> new Pair<>(it.getId(), it.getWord()))
                     .collect(Collectors.toList())
             , key -> StringUtils.EMPTY);
     public SimpleCache<Long, String> personCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
-            , persons -> OrmContext.getQuery().queryFieldIn("_id", persons, PersonEntity.class)
+            , persons -> OrmContext.getQuery(PersonEntity.class).in("_id", persons).queryAll()
                     .stream()
                     .map(it -> new Pair<>(it.getId(), it.getWord()))
                     .collect(Collectors.toList())
             , key -> StringUtils.EMPTY);
     public SimpleCache<Long, String> categoryCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
-            , items -> OrmContext.getQuery().queryFieldIn("_id", items, CategoryEntity.class)
+            , items -> OrmContext.getQuery(CategoryEntity.class).in("_id", items).queryAll()
                     .stream()
                     .map(it -> new Pair<>(it.getId(), it.getName()))
                     .collect(Collectors.toList())

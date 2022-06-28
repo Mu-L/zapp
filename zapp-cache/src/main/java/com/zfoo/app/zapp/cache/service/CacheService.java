@@ -63,7 +63,7 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
                 var collection = OrmContext.getOrmManager().getCollection("timeSlice");
                 collection.find(Filters.in("userId", userIds))
                         .projection(Projections.include("_id", "userId", "create"))
-                        .forEach((Consumer<Document>) document -> {
+                        .forEach(document -> {
                             var tsId = document.getLong("_id");
                             var userId = document.getLong("userId");
                             var create = document.getLong("create");
@@ -99,7 +99,7 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
     public SimpleCache<Long, CategoryVO> categoryCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
             , categories -> {
-                var categoryList = OrmContext.getQuery().queryFieldIn("_id", categories, CategoryEntity.class);
+                var categoryList = OrmContext.getQuery(CategoryEntity.class).in("_id", categories).queryAll();
 
                 var categorySet = new HashSet<Long>();
                 categoryList.stream().filter(it -> CollectionUtils.isNotEmpty(it.getParent()))
@@ -109,7 +109,7 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
                         .map(it -> it.getChildren())
                         .forEach(it -> categorySet.addAll(it));
 
-                var categoryMap = OrmContext.getQuery().queryFieldIn("_id", new ArrayList<>(categorySet), CategoryEntity.class)
+                var categoryMap = OrmContext.getQuery(CategoryEntity.class).in("_id", new ArrayList<>(categorySet)).queryAll()
                         .stream()
                         .collect(Collectors.toMap(key -> key.getId(), value -> value.getName()));
 
@@ -117,7 +117,7 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
                 categoryList.stream().filter(it -> CollectionUtils.isNotEmpty(it.getWords()))
                         .map(it -> it.getWords())
                         .forEach(it -> wordSet.addAll(it));
-                var wordMap = OrmContext.getQuery().queryFieldIn("_id", new ArrayList<>(wordSet), WordEntity.class)
+                var wordMap = OrmContext.getQuery(WordEntity.class).in("_id", new ArrayList<>(wordSet)).queryAll()
                         .stream()
                         .collect(Collectors.toMap(key -> key.getId(), value -> value.getWord()));
 
@@ -145,12 +145,12 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
     public SimpleCache<Long, WordVO> wordCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
             , words -> {
-                var wordList = OrmContext.getQuery().queryFieldIn("_id", words, WordEntity.class);
+                var wordList = OrmContext.getQuery(WordEntity.class).in("_id", words).queryAll();
                 var allLinks = new HashSet<Long>();
                 wordList.stream().filter(it -> CollectionUtils.isNotEmpty(it.getLinks()))
                         .map(it -> it.getLinks())
                         .forEach(it -> allLinks.addAll(it));
-                var linkMap = OrmContext.getQuery().queryFieldIn("_id", new ArrayList<>(allLinks), WordEntity.class)
+                var linkMap = OrmContext.getQuery(WordEntity.class).in("_id", new ArrayList<>(allLinks)).queryAll()
                         .stream()
                         .collect(Collectors.toMap(key -> key.getId(), value -> value.getWord()));
 
@@ -158,7 +158,7 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
                 wordList.stream().filter(it -> CollectionUtils.isNotEmpty(it.getCategories()))
                         .map(it -> it.getCategories())
                         .forEach(it -> allCategories.addAll(it));
-                var categoryMap = OrmContext.getQuery().queryFieldIn("_id", new ArrayList<>(allCategories), CategoryEntity.class)
+                var categoryMap = OrmContext.getQuery(CategoryEntity.class).in("_id", new ArrayList<>(allCategories)).queryAll()
                         .stream()
                         .collect(Collectors.toMap(key -> key.getId(), value -> value.getName()));
 
@@ -180,7 +180,7 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
 
     public SimpleCache<String, TripleLSS> locationCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
-            , locations -> OrmContext.getQuery().queryFieldIn("word", locations, WordEntity.class)
+            , locations -> OrmContext.getQuery(WordEntity.class).in("word", locations).queryAll()
                     .stream()
                     .map(it -> {
                         var id = it.getId();
@@ -204,7 +204,7 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
 
     public SimpleCache<Long, TripleString> personCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
-            , persons -> OrmContext.getQuery().queryFieldIn("_id", persons, WordEntity.class)
+            , persons -> OrmContext.getQuery(WordEntity.class).in("_id", persons).queryAll()
                     .stream()
                     .map(it -> {
                         var id = it.getId();
@@ -228,7 +228,7 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
 
     public SimpleCache<Long, TripleString> itemCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
-            , items -> OrmContext.getQuery().queryFieldIn("_id", items, WordEntity.class)
+            , items -> OrmContext.getQuery(WordEntity.class).in("_id", items).queryAll()
                     .stream()
                     .map(it -> {
                         var id = it.getId();
@@ -253,7 +253,7 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
     public SimpleCache<Long, UserCache> userCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
             , userIds -> {
-                var userList = OrmContext.getQuery().queryFieldIn("_id", userIds, UserEntity.class);
+                var userList = OrmContext.getQuery(UserEntity.class).in("_id", userIds).queryAll();
 
                 var userCacheList = new ArrayList<Pair<Long, UserCache>>();
                 for (var user : userList) {
