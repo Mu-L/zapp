@@ -56,17 +56,17 @@ import java.util.stream.Collectors;
 @Controller
 public class UserFollowFanController {
 
-    private SimpleCache<Long, List<Long>> userFollowsCaches = SimpleCache.build(
+    private final SimpleCache<Long, List<Long>> userFollowsCaches = SimpleCache.build(
             60 * TimeUtils.MILLIS_PER_SECOND, 30 * TimeUtils.MILLIS_PER_SECOND, 1_000
-            , ids -> OrmContext.getQuery().queryFieldIn("_id", ids, UserEntity.class)
+            , ids -> OrmContext.getQuery(UserEntity.class).in("_id", ids).queryAll()
                     .stream()
                     .map(it -> new Pair<>(it.getId(), it.getFollows()))
                     .collect(Collectors.toList())
             , key -> Collections.EMPTY_LIST);
 
-    private SimpleCache<Long, List<Long>> userFansCaches = SimpleCache.build(
+    private final SimpleCache<Long, List<Long>> userFansCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_000
-            , ids -> OrmContext.getQuery().queryFieldIn("_id", ids, UserEntity.class)
+            , ids -> OrmContext.getQuery(UserEntity.class).in("_id", ids).queryAll()
                     .stream()
                     .map(it -> new Pair<>(it.getId(), it.getFans()))
                     .collect(Collectors.toList())

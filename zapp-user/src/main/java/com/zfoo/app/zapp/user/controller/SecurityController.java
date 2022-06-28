@@ -47,12 +47,13 @@ public class SecurityController {
     public void atAccountSecurityAsk(Session session, AccountSecurityAsk ask) {
         var userId = ask.getUserId();
 
-        var phoneList = OrmContext.getQuery().queryFieldEqual("uid", userId, PhoneEntity.class);
+        var phoneList = OrmContext.getQuery(PhoneEntity.class).eq("uid", userId).queryAll();
         var phoneNumber = CollectionUtils.isEmpty(phoneList) ? 0 : phoneList.get(0).getId();
 
         var weiBoBind = false;
-        var weiBoOptional = OrmContext.getQuery()
-                .queryFieldEqual("uid", userId, WeiBoEntity.class)
+        var weiBoOptional = OrmContext.getQuery(WeiBoEntity.class)
+                .eq("uid", userId)
+                .queryAll()
                 .stream()
                 .findFirst();
         if (weiBoOptional.isPresent()) {
@@ -60,8 +61,9 @@ public class SecurityController {
         }
 
         var weiChatBind = false;
-        var weiChatOptional = OrmContext.getQuery()
-                .queryFieldEqual("uid", userId, WeChatEntity.class)
+        var weiChatOptional = OrmContext.getQuery(WeChatEntity.class)
+                .eq("uid", userId)
+                .queryAll()
                 .stream()
                 .findFirst();
         if (weiChatOptional.isPresent()) {
@@ -105,8 +107,9 @@ public class SecurityController {
             return;
         }
 
-        OrmContext.getQuery()
-                .queryFieldEqual("uid", userId, PhoneEntity.class)
+        OrmContext.getQuery(PhoneEntity.class)
+                .eq("uid", userId)
+                .queryAll()
                 .forEach(it -> OrmContext.getAccessor().delete(it));
 
         OrmContext.getAccessor().insert(PhoneEntity.valueOf(phoneNumber, userId));

@@ -63,10 +63,10 @@ public class PersonController {
 
     private static final Logger logger = LoggerFactory.getLogger(PersonController.class);
 
-    private SimpleCache<Long, List<Long>> personFeedCaches = SimpleCache.build(
+    private final SimpleCache<Long, List<Long>> personFeedCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_000
             , items -> {
-                var personFeeds = OrmContext.getQuery().queryFieldIn("_id", items, FeedPersonEntity.class);
+                var personFeeds = OrmContext.getQuery(FeedPersonEntity.class).in("_id", items).queryAll();
                 var result = new ArrayList<Pair<Long, List<Long>>>();
                 for (var feed : personFeeds) {
                     var list = CollectionUtils.listJoinList(true

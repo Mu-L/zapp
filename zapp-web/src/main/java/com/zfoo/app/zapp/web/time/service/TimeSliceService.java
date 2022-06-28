@@ -74,7 +74,7 @@ public class TimeSliceService implements ITimeSliceService {
 
     public SimpleCache<Long, TimeSliceVO> timeSliceCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
-            , links -> OrmContext.getQuery().queryFieldIn("_id", links, TimeSliceEntity.class)
+            , links -> OrmContext.getQuery(TimeSliceEntity.class).in("_id", links).queryAll()
                     .stream()
                     .map(it -> {
                         var list = converter(List.of(it));
@@ -390,7 +390,7 @@ public class TimeSliceService implements ITimeSliceService {
 
         notExistItems = notExistItems.stream().map(it -> it.trim()).collect(Collectors.toList());
 
-        var list = OrmContext.getQuery().queryFieldIn("word", notExistItems, WordEntity.class);
+        var list = OrmContext.getQuery( WordEntity.class).in("word", notExistItems).queryAll();
         itemIdSet.addAll(list.stream().map(it -> it.getId()).collect(Collectors.toList()));
 
         var needInsertItems = notExistItems.stream()

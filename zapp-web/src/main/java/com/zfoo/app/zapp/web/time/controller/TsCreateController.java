@@ -338,7 +338,7 @@ public class TsCreateController {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_ERROR);
         }
 
-        var reviewList = OrmContext.getQuery().queryFieldIn("_id", tsReviewEntity.getReviewLinks(), TsReviewEntity.class);
+        var reviewList = OrmContext.getQuery(TsReviewEntity.class).in("_id", tsReviewEntity.getReviewLinks()).queryAll();
         if (CollectionUtils.isEmpty(reviewList)) {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_ERROR_ONE);
         }
@@ -532,7 +532,7 @@ public class TsCreateController {
         if (CollectionUtils.isEmpty(reviewSet)) {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_NOT_MATCH);
         }
-        var list = OrmContext.getQuery().queryFieldIn("_id", new ArrayList<>(reviewSet), TsReviewEntity.class);
+        var list = OrmContext.getQuery(TsReviewEntity.class).in("_id", new ArrayList<>(reviewSet)).queryAll();
         if (list.size() != reviewSet.size()) {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_ERROR);
         }
@@ -565,7 +565,7 @@ public class TsCreateController {
         if (CollectionUtils.isEmpty(reviewRejectSet)) {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_NOT_MATCH);
         }
-        var list = OrmContext.getQuery().queryFieldIn("_id", new ArrayList<>(reviewRejectSet), TsReviewEntity.class);
+        var list = OrmContext.getQuery(TsReviewEntity.class).in("_id", new ArrayList<>(reviewRejectSet)).queryAll();
         if (list.size() != reviewRejectSet.size()) {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_ERROR);
         }
@@ -598,7 +598,7 @@ public class TsCreateController {
         if (CollectionUtils.isEmpty(editSet)) {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_NOT_MATCH);
         }
-        var list = OrmContext.getQuery().queryFieldIn("_id", new ArrayList<>(editSet), TsEditEntity.class);
+        var list = OrmContext.getQuery(TsEditEntity.class).in("_id", new ArrayList<>(editSet)).queryAll();
         if (list.size() != editSet.size()) {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_ERROR);
         }
@@ -609,7 +609,7 @@ public class TsCreateController {
         OrmContext.getAccessor().batchDelete(new ArrayList<>(editSet), TsEditEntity.class);
 
         var tsIds = list.stream().map(it -> it.getTimeSlice().getId()).collect(Collectors.toList());
-        var timeSlices = OrmContext.getQuery().queryFieldIn("_id", tsIds, TimeSliceEntity.class);
+        var timeSlices = OrmContext.getQuery(TimeSliceEntity.class).in("_id", tsIds).queryAll();
         var editTimeSlices = list.stream().map(it -> it.getTimeSlice()).collect(Collectors.toList());
         EventBus.syncSubmit(DeleteEditTimeSliceEvent.value(editTimeSlices, timeSlices));
 
@@ -633,7 +633,7 @@ public class TsCreateController {
         if (CollectionUtils.isEmpty(editRejectSet)) {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_NOT_MATCH);
         }
-        var list = OrmContext.getQuery().queryFieldIn("_id", new ArrayList<>(editRejectSet), TsEditEntity.class);
+        var list = OrmContext.getQuery(TsEditEntity.class).in("_id", new ArrayList<>(editRejectSet)).queryAll();
         if (list.size() != editRejectSet.size()) {
             return BaseResponse.valueOf(CodeEnum.PARAMETER_ERROR);
         }
@@ -644,7 +644,7 @@ public class TsCreateController {
         OrmContext.getAccessor().batchDelete(new ArrayList<>(editRejectSet), TsEditEntity.class);
 
         var tsIds = list.stream().map(it -> it.getTimeSlice().getId()).collect(Collectors.toList());
-        var timeSlices = OrmContext.getQuery().queryFieldIn("_id", tsIds, TimeSliceEntity.class);
+        var timeSlices = OrmContext.getQuery(TimeSliceEntity.class).in("_id", tsIds).queryAll();
         var editTimeSlices = list.stream().map(it -> it.getTimeSlice()).collect(Collectors.toList());
         EventBus.syncSubmit(DeleteEditTimeSliceEvent.value(editTimeSlices, timeSlices));
 
@@ -676,7 +676,7 @@ public class TsCreateController {
         }
 
         var reviewList = new ArrayList<TimeSliceReviewVO>();
-        OrmContext.getQuery().pageQuery(page, AppConstant.TS_REVIEW_PER_PAGE, TsReviewEntity.class)
+        OrmContext.getQuery(TsReviewEntity.class).queryPage(page, AppConstant.TS_REVIEW_PER_PAGE)
                 .getValue()
                 .stream()
                 .filter(it -> !ReportConstant.reportMap.containsKey(it.getOptionType()))
@@ -688,7 +688,7 @@ public class TsCreateController {
 
         // edit相关
         var editList = new ArrayList<TimeSliceReviewVO>();
-        OrmContext.getQuery().pageQuery(page, AppConstant.TS_REVIEW_PER_PAGE, TsEditEntity.class)
+        OrmContext.getQuery(TsEditEntity.class).queryPage(page, AppConstant.TS_REVIEW_PER_PAGE)
                 .getValue()
                 .stream()
                 .filter(it -> !ReportConstant.reportMap.containsKey(it.getOptionType()))

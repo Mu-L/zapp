@@ -76,7 +76,7 @@ public class WeiboLoginController {
             return;
         }
 
-        var weiBoList = OrmContext.getQuery().queryFieldEqual("uid", userId, WeiBoEntity.class);
+        var weiBoList = OrmContext.getQuery(WeiBoEntity.class).eq("uid", userId).queryAll();
         if (CollectionUtils.isNotEmpty(weiBoList)) {
             NetContext.getRouter().send(session, Message.valueOf(ask, CodeEnum.USER_ALREADY_BIND_WEIBO_ERROR.getCode()));
             return;
@@ -92,7 +92,7 @@ public class WeiboLoginController {
 
         var userId = ask.getUserId();
 
-        var weiBoList = OrmContext.getQuery().queryFieldEqual("uid", userId, WeiBoEntity.class);
+        var weiBoList = OrmContext.getQuery(WeiBoEntity.class).eq("uid", userId).queryAll();
         if (CollectionUtils.isEmpty(weiBoList)) {
             NetContext.getRouter().send(session, Message.valueOf(ask, CodeEnum.USER_BIND_WEIBO_EMPTY_ERROR.getCode()));
             return;

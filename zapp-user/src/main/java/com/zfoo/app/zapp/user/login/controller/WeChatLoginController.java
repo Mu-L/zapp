@@ -77,7 +77,7 @@ public class WeChatLoginController {
             return;
         }
 
-        var weChatList = OrmContext.getQuery().queryFieldEqual("uid", userId, WeChatEntity.class);
+        var weChatList = OrmContext.getQuery(WeChatEntity.class).eq("uid", userId).queryAll();
         if (CollectionUtils.isNotEmpty(weChatList)) {
             NetContext.getRouter().send(session, Message.valueOf(ask, CodeEnum.USER_ALREADY_BIND_WECHAT_ERROR.getCode()));
             return;
@@ -93,7 +93,7 @@ public class WeChatLoginController {
 
         var userId = ask.getUserId();
 
-        var weChatList = OrmContext.getQuery().queryFieldEqual("uid", userId, WeChatEntity.class);
+        var weChatList = OrmContext.getQuery(WeChatEntity.class).eq("uid", userId).queryAll();
         if (CollectionUtils.isEmpty(weChatList)) {
             NetContext.getRouter().send(session, Message.valueOf(ask, CodeEnum.USER_BIND_WECHAT_EMPTY_ERROR.getCode()));
             return;
