@@ -1,3 +1,7 @@
+#### 注意事项
+
+- 此项目现在已经不维护了，如果想使用本项目，请使用zfoo的分支[zfoo-zapp](https://github.com/zfoo-project/zfoo/tree/zfoo-zapp)
+
 ### Ⅰ. zapp简介
 
 - 之前做了一个资源图片分享和交友网站，由于不可抗因数倒闭了。
