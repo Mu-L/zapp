@@ -91,7 +91,7 @@ public class GatewayController {
 
         var module = ProtocolManager.moduleByModuleId(AppConstant.ZAPP_PUSH_MODULE_ID);
 
-        if (!registerVO.getProviderConfig().getModules().contains(module)) {
+        if (!registerVO.getProviderConfig().getProviders().contains(module)) {
             return;
         }
 
