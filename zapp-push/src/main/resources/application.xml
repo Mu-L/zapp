@@ -30,9 +30,9 @@
             <net:address name="${registry.address.name}" url="${registry.address.url}"/>
         </net:registry>
 
-        <net:provider task-dispatch="consistent-hash">
-            <net:module name="zappPushNet"/>
-        </net:provider>
+        <net:providers>
+            <net:provider protocol-module="zappPushNet" provider="zappPushNetProvider"/>
+        </net:providers>
     </net:config>
 
 </beans>

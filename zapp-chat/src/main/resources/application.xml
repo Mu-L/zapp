@@ -53,15 +53,15 @@
             <net:address name="${registry.address.name}" url="${registry.address.url}"/>
         </net:registry>
 
-        <net:provider task-dispatch="consistent-hash">
-            <net:module name="zappChatNet"/>
-        </net:provider>
+        <net:providers>
+            <net:provider protocol-module="zappChatNet" provider="zappChatNetProvider"/>
+        </net:providers>
 
-        <net:consumer load-balancer="consistent-hash">
-            <net:module name="zappUserNet"/>
-            <net:module name="zappCacheNet"/>
-            <net:module name="zappPushNet"/>
-        </net:consumer>
+        <net:consumers>
+            <net:consumer protocol-module="zappUserNet" consumer="zappUserNetProvider"/>
+            <net:consumer protocol-module="zappCacheNet" consumer="zappCacheNetProvider"/>
+            <net:consumer protocol-module="zappPushNet" consumer="zappPushNetProvider"/>
+        </net:consumers>
     </net:config>
 
 </beans>

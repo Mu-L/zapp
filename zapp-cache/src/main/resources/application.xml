@@ -28,7 +28,7 @@
 
     <storage:storage id="resourceManager">
         <storage:scan package="com.zfoo.app.zapp.cache.model.**.resource"/>
-        <storage:resource location="classpath:/" suffix="xlsx"/>
+        <storage:resource location="classpath:/"/>
     </storage:storage>
 
     <orm:config id="zappCacheOrm" entity-package="com.zfoo.app.zapp.common.**.entity">
@@ -61,9 +61,9 @@
             <net:address name="${registry.address.name}" url="${registry.address.url}"/>
         </net:registry>
 
-        <net:provider task-dispatch="consistent-hash">
-            <net:module name="zappCacheNet"/>
-        </net:provider>
+        <net:providers>
+            <net:provider protocol-module="zappCacheNet" provider="zappCacheNetProvider"/>
+        </net:providers>
     </net:config>
 
 </beans>
