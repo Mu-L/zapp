@@ -11,22 +11,23 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.zfoo.app.zapp.chat.friend.service;
+package com.zfoo.app.zapp.chat.service;
+
+import com.zfoo.app.zapp.common.entity.common.MessageEnum;
+import com.zfoo.app.zapp.common.entity.common.MessagePO;
+import com.zfoo.app.zapp.common.protocol.common.ChatMessage;
+
+import java.util.List;
 
 /**
  * @author jaysunxiao
  * @version 1.0
- * @since 2019-11-15 16:21
+ * @since 2019-11-17 12:14
  */
-public interface IFriendService {
+public interface IChatMessageService {
 
+    void chatToFriend(long sendId, long friendId, MessageEnum type, String message);
 
-    boolean blacklisted(long userId, long targetId);
-
-
-    /**
-     * 双方是否加了好友
-     */
-    boolean connected(long userId, long targetId);
+    List<ChatMessage> toChatMessages(List<MessagePO> messages);
 
 }

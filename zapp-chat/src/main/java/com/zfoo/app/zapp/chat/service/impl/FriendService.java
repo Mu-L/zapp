@@ -11,8 +11,9 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.zfoo.app.zapp.chat.friend.service;
+package com.zfoo.app.zapp.chat.service.impl;
 
+import com.zfoo.app.zapp.chat.service.IFriendService;
 import com.zfoo.app.zapp.common.entity.friend.ApplicantEntity;
 import com.zfoo.app.zapp.common.entity.friend.FriendEntity;
 import com.zfoo.orm.model.anno.EntityCachesInjection;

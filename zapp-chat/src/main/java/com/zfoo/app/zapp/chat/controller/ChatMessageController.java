@@ -11,10 +11,10 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.zfoo.app.zapp.chat.message.controller;
+package com.zfoo.app.zapp.chat.controller;
 
-import com.zfoo.app.zapp.chat.friend.service.IFriendService;
-import com.zfoo.app.zapp.chat.message.service.IChatMessageService;
+import com.zfoo.app.zapp.chat.service.IFriendService;
+import com.zfoo.app.zapp.chat.service.IChatMessageService;
 import com.zfoo.app.zapp.common.constant.AppConstant;
 import com.zfoo.app.zapp.common.entity.common.MessageEnum;
 import com.zfoo.app.zapp.common.entity.friend.FriendEntity;
