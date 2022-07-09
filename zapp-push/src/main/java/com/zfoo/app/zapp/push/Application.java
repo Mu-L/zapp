@@ -16,6 +16,8 @@ package com.zfoo.app.zapp.push;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
+ * push你可以理解为broker,记录了所有用户的连接信息
+ *
  * @author jaysunxiao
  * @version 1.0
  * @since 2019-11-10 14:21

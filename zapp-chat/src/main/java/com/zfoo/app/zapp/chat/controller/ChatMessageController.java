@@ -98,15 +98,15 @@ public class ChatMessageController {
             return;
         }
 
-        if (!friendService.connected(userId, friendId)) {
+        if (!friendService.checkConnected(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_NOT_ADDED.getCode()), gatewayAttachment);
             return;
         }
-        if (friendService.blacklisted(userId, friendId)) {
+        if (friendService.checkBlackListed(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_REJECT_MESSAGE.getCode(), null), gatewayAttachment);
             return;
         }
-        if (friendService.blacklisted(friendId, userId)) {
+        if (friendService.checkBlackListed(friendId, userId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_REJECT_MESSAGE.getCode(), null), gatewayAttachment);
             return;
         }
@@ -131,11 +131,11 @@ public class ChatMessageController {
             return;
         }
 
-        if (!friendService.connected(userId, friendId)) {
+        if (!friendService.checkConnected(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_NOT_ADDED.getCode()), gatewayAttachment);
             return;
         }
-        if (friendService.blacklisted(userId, friendId)) {
+        if (friendService.checkBlackListed(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_REJECT_MESSAGE.getCode(), null), gatewayAttachment);
             return;
         }
@@ -174,11 +174,11 @@ public class ChatMessageController {
             return;
         }
 
-        if (!friendService.connected(userId, friendId)) {
+        if (!friendService.checkConnected(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_NOT_ADDED.getCode()), gatewayAttachment);
             return;
         }
-        if (friendService.blacklisted(userId, friendId)) {
+        if (friendService.checkBlackListed(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_REJECT_MESSAGE.getCode(), null), gatewayAttachment);
             return;
         }
@@ -225,7 +225,7 @@ public class ChatMessageController {
             return;
         }
 
-        if (!friendService.connected(userId, friendId)) {
+        if (!friendService.checkConnected(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_NOT_ADDED.getCode()), gatewayAttachment);
             return;
         }
@@ -261,7 +261,7 @@ public class ChatMessageController {
             return;
         }
 
-        if (!friendService.connected(userId, friendId)) {
+        if (!friendService.checkConnected(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_NOT_ADDED.getCode()), gatewayAttachment);
             return;
         }

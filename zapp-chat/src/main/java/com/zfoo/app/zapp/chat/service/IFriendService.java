@@ -20,13 +20,19 @@ package com.zfoo.app.zapp.chat.service;
  */
 public interface IFriendService {
 
-
-    boolean blacklisted(long userId, long targetId);
+    /**
+     * 是否拉黑
+     *
+     * @param userId
+     * @param targetId
+     * @return
+     */
+    boolean checkBlackListed(long userId, long targetId);
 
 
     /**
      * 双方是否加了好友
      */
-    boolean connected(long userId, long targetId);
+    boolean checkConnected(long userId, long targetId);
 
 }

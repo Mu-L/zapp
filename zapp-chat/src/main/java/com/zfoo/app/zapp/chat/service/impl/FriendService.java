@@ -37,7 +37,7 @@ public class FriendService implements IFriendService {
     private IEntityCaches<String, FriendEntity> friendEntityCaches;
 
     @Override
-    public boolean blacklisted(long userId, long targetId) {
+    public boolean checkBlackListed(long userId, long targetId) {
         var id = IdUtils.generateStringId(userId, targetId);
         var friendEntity = friendEntityCaches.load(id);
         if (StringUtils.isBlank(friendEntity.getId())) {
@@ -48,7 +48,7 @@ public class FriendService implements IFriendService {
 
 
     @Override
-    public boolean connected(long userId, long targetId) {
+    public boolean checkConnected(long userId, long targetId) {
         var id = IdUtils.generateStringId(userId, targetId);
         var friendEntity = friendEntityCaches.load(id);
         if (StringUtils.isBlank(friendEntity.getId())) {

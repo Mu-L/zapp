@@ -71,6 +71,13 @@ public class FriendController {
     @EntityCachesInjection
     private IEntityCaches<String, FriendEntity> friendEntityCaches;
 
+    /**
+     * 发起好友申请
+     *
+     * @param session
+     * @param cm
+     * @param gatewayAttachment
+     */
     @PacketReceiver
     public void atApplyFriendRequest(Session session, ApplyFriendRequest cm, GatewayAttachment gatewayAttachment) {
         var userId = gatewayAttachment.getUid();
@@ -88,42 +95,51 @@ public class FriendController {
 
         var id = IdUtils.generateStringId(userId, friendId);
 
-        if (friendService.connected(userId, friendId)) {
+        // 已经是好友
+        if (friendService.checkConnected(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_ALREADY_ADDED.getCode()), gatewayAttachment);
             return;
         }
 
         // 如果是黑名单中的好友，则忽略直接返回
-        if (friendService.blacklisted(userId, friendId)) {
+        if (friendService.checkBlackListed(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_REJECT_MESSAGE.getCode()), gatewayAttachment);
             return;
         }
 
+        // 向user发起rpc
         NetContext.getConsumer()
                 .asyncAsk(ApplyFriendLimitAsk.valueOf(userId), Message.class, userId)
                 .whenComplete(message -> {
+                    // 用户不存在
                     if (!message.success()) {
                         // 返回失败信息给user
                         NetContext.getRouter().send(session, Error.valueOf(cm, message.getCode()), gatewayAttachment);
                         return;
                     }
 
+                    // 向cache服务器发起rpc
                     NetContext.getConsumer()
                             .asyncAsk(GetUserCacheAsk.valueOf(Set.of(userId)), GetUserCacheAnswer.class, userId)
                             .whenComplete(answer -> {
+                                // 申请关系
                                 var applicantEntity = applicantEntityCaches.load(id);
+
                                 // 以经申请过，则不用重新申请，直接返回
                                 if (applicantEntity.getUserId() == userId && applicantEntity.getTargetId() == friendId && applicantEntity.getStatus() == 0) {
                                     NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_ALREADY_APPLY.getCode()), gatewayAttachment);
                                     return;
                                 }
 
+                                // 从cache服得到userId的缓存信息
                                 var userCacheMap = answer.getUserCacheMap();
+                                // userId对应的信息不存在
                                 if (CollectionUtils.isEmpty(userCacheMap)) {
                                     NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.USER_NOT_EXIST.getCode()), gatewayAttachment);
                                     return;
                                 }
 
+                                // 如果没有申请过，那么就创建一个entity，往数据库记录下申请信息
                                 if (StringUtils.isBlank(applicantEntity.getId())) {
                                     var newApplyFriendEntity = ApplicantEntity.valueOf(userId, friendId);
                                     newApplyFriendEntity.setTimestamp(TimeUtils.now());
@@ -134,20 +150,31 @@ public class FriendController {
                                 }
                                 applicantEntity.setStatus(0);
                                 applicantEntity.setTimestamp(TimeUtils.now());
+                                // db中插入后，再更新到缓存中
                                 applicantEntityCaches.update(applicantEntity);
 
 
                                 var applyFriendVO = ApplyFriendVO.valueOf(applicantEntity.getUserId(), applicantEntity.getStatus(), applicantEntity.getTimestamp());
                                 applyFriendVO.setFriendCache(userCacheMap.get(userId));
 
+                                // 把消息直接-->push-->网关-->2个用户
+                                // 毕竟看application.xml也知道这个协议是Push模块的. 自己是消费者，向push模块发消息。
                                 NetContext.getConsumer().send(ApplyFriendPush.valueOf(friendId, NewApplyFriendNotice.valueOf(applyFriendVO)), IdUtils.generateStringId(userId, friendId));
 
+                                // 把消息发给客户端(经网关转发)：这个session虽然是网关session，但是会直接把消息转发给客户端
                                 NetContext.getRouter().send(session, Message.valueOf(cm, CodeEnum.OK.getCode()), gatewayAttachment);
                             });
                 });
     }
 
 
+    /**
+     * 点击同意添加好友
+     *
+     * @param session
+     * @param cm
+     * @param gatewayAttachment
+     */
     @PacketReceiver
     public void atAcceptFriendRequest(Session session, AcceptFriendRequest cm, GatewayAttachment gatewayAttachment) {
         var userId = gatewayAttachment.getUid();
@@ -163,7 +190,8 @@ public class FriendController {
             return;
         }
 
-        if (friendService.connected(userId, friendId)) {
+        // 已经是好友
+        if (friendService.checkConnected(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_ALREADY_ADDED.getCode()), gatewayAttachment);
             return;
         }
@@ -175,7 +203,7 @@ public class FriendController {
             return;
         }
 
-        // 通知两个用户，并将user写入好友数据库
+        // chat服向user服发起rpc，请求记录下userId添加了friendId为好友（修改UserEntity表）
         NetContext.getConsumer()
                 .asyncAsk(UserAcceptFriendAsk.valueOf(userId, friendId), Message.class, userId)
                 .whenComplete(messageA -> {
@@ -185,6 +213,7 @@ public class FriendController {
                         return;
                     }
 
+                    // chat服向user服发起rpc，请求记录下friendId添加了userId为好友（修改UserEntity表）
                     NetContext.getConsumer()
                             .asyncAsk(UserAcceptFriendAsk.valueOf(friendId, userId), Message.class, friendId)
                             .whenComplete(messageB -> {
@@ -194,41 +223,39 @@ public class FriendController {
                                     return;
                                 }
 
-                                TaskBus.executor(HashUtils.fnvHash(cm.loadBalancerConsistentHashObject())).execute(new Runnable() {
-                                    @Override
-                                    public void run() {
+                                // 删除一下申请记录
+                                TaskBus.executor(HashUtils.fnvHash(cm.loadBalancerConsistentHashObject())).execute(() -> {
+                                    // 先删除缓存
+                                    applicantEntityCaches.invalidate(id);
+                                    // 再删除数据库中的数据
+                                    OrmContext.getAccessor().delete(id, ApplicantEntity.class);
 
-                                        // 先删除缓存
-                                        applicantEntityCaches.invalidate(id);
-                                        // 再删除数据库中的数据
-                                        OrmContext.getAccessor().delete(id, ApplicantEntity.class);
-
-
-                                        var friendEntity = friendEntityCaches.load(id);
-                                        if (StringUtils.isBlank(friendEntity.getId())) {
-                                            var newEntity = FriendEntity.valueOf(userId, friendId);
-                                            newEntity.setConnected(true);
-                                            friendEntity = newEntity;
-                                            OrmContext.getAccessor().insert(newEntity);
-                                            friendEntityCaches.invalidate(id);
-                                        }
-                                        friendEntity.setConnected(true);
-                                        friendEntityCaches.update(friendEntity);
-
-                                        // 返回成功信息给user
-                                        NetContext.getRouter().send(session, Message.valueOf(cm, CodeEnum.OK.getCode()), gatewayAttachment);
-
-                                        NetContext.getConsumer()
-                                                .asyncAsk(GetUserCacheAsk.valueOf(Set.of(userId, friendId)), GetUserCacheAnswer.class, cm.loadBalancerConsistentHashObject())
-                                                .whenComplete(userCacheAnswer -> {
-                                                    var userCacheMap = userCacheAnswer.getUserCacheMap();
-                                                    // 推送新的friend给两个用户
-                                                    NetContext.getConsumer().send(AcceptFriendPush.valueOf(List.of(userId, friendId), NewFriendNotice.valueOf(userCacheMap.get(userId), userCacheMap.get(friendId))), IdUtils.generateStringId(userId, friendId))
-                                                    ;
-                                                    // 第一条打招呼消息
-                                                    chatMessageService.chatToFriend(userId, friendId, MessageEnum.TEXT, AppConstant.FRIEND_FIRST_MESSAGE);
-                                                });
+                                    // 修改FriendEntity表，记录好友关系
+                                    var friendEntity = friendEntityCaches.load(id);
+                                    if (StringUtils.isBlank(friendEntity.getId())) {
+                                        var newEntity = FriendEntity.valueOf(userId, friendId);
+                                        newEntity.setConnected(true);
+                                        friendEntity = newEntity;
+                                        OrmContext.getAccessor().insert(newEntity);
+                                        friendEntityCaches.invalidate(id);
                                     }
+                                    friendEntity.setConnected(true);
+                                    friendEntityCaches.update(friendEntity);
+
+                                    // 给客户端返回消息：添加好友成功
+                                    NetContext.getRouter().send(session, Message.valueOf(cm, CodeEnum.OK.getCode()), gatewayAttachment);
+
+                                    NetContext.getConsumer()
+                                            .asyncAsk(GetUserCacheAsk.valueOf(Set.of(userId, friendId)), GetUserCacheAnswer.class, cm.loadBalancerConsistentHashObject())
+                                            .whenComplete(userCacheAnswer -> {
+                                                var userCacheMap = userCacheAnswer.getUserCacheMap();
+                                                // 通过Consumer给网关推送信息。 网关再把消息发给2个客户端。
+                                                // 因为玩家a添加玩家b为好友。 在这里只能给玩家a发消息，但是添加好友是双向的，要想给玩家b发消息，只能先发给网关了。
+                                                NetContext.getConsumer().send(AcceptFriendPush.valueOf(List.of(userId, friendId),
+                                                        NewFriendNotice.valueOf(userCacheMap.get(userId), userCacheMap.get(friendId))), IdUtils.generateStringId(userId, friendId));
+                                                // 第一条打招呼消息
+                                                chatMessageService.chatToFriend(userId, friendId, MessageEnum.TEXT, AppConstant.FRIEND_FIRST_MESSAGE);
+                                            });
                                 });
                             });
                 });
@@ -405,7 +432,7 @@ public class FriendController {
             return;
         }
 
-        if (!friendService.connected(userId, friendId)) {
+        if (!friendService.checkConnected(userId, friendId)) {
             NetContext.getRouter().send(session, Error.valueOf(cm, CodeEnum.FRIEND_NOT_ADDED.getCode()), gatewayAttachment);
             return;
         }
