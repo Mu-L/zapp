@@ -18,7 +18,7 @@ import com.zfoo.app.zapp.common.model.LicenseEnum;
 import com.zfoo.app.zapp.common.protocol.user.info.*;
 import com.zfoo.app.zapp.common.protocol.user.time.LoveStatisticsAsk;
 import com.zfoo.app.zapp.common.result.CodeEnum;
-import com.zfoo.app.zapp.user.login.model.LoginEvent;
+import com.zfoo.app.zapp.user.model.LoginEvent;
 import com.zfoo.event.manager.EventBus;
 import com.zfoo.net.NetContext;
 import com.zfoo.net.packet.common.Error;

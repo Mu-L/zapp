@@ -14,7 +14,7 @@
 package com.zfoo.app.zapp.push.controller;
 
 import com.zfoo.app.zapp.common.protocol.push.friend.*;
-import com.zfoo.app.zapp.push.sid.service.ISidSessionService;
+import com.zfoo.app.zapp.push.service.ISidSessionService;
 import com.zfoo.net.NetContext;
 import com.zfoo.net.router.receiver.PacketReceiver;
 import com.zfoo.net.session.model.Session;
