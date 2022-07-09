@@ -57,10 +57,18 @@
     </orm:config>
 
     <net:config id="zappCacheNet" protocol-location="protocol.xml">
+        <!--
+        用于启动zk使用。
+        在ZookeeperRegistry.java的start方法中可以发现：没读到这个配置，那么下面的providers等属性也没用了，压根就走不到那一步，因为也没办法从zk中注册和读取信息了。
+        -->
         <net:registry center="${registry.center}" user="${registry.user}" password="${registry.password}">
             <net:address name="${registry.address.name}" url="${registry.address.url}"/>
         </net:registry>
 
+        <!--
+        一旦声明了自己是服务提供者模块，那么就会在进程启动时，将该进程信息注册到服务提供者zk中。
+        别的消费这个服务的进程由于它的配置文件中指明自己要消费这个服务，就会一直重连直到连接上这个服务提供者。
+        -->
         <net:providers>
             <net:provider protocol-module="zappCacheNet" provider="zappCacheNetProvider"/>
         </net:providers>

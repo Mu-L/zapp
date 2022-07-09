@@ -15,22 +15,20 @@ package com.zfoo.app.zapp.cache.controller;
 
 import com.zfoo.app.zapp.cache.service.CacheService;
 import com.zfoo.app.zapp.common.protocol.cache.*;
-import com.zfoo.app.zapp.common.protocol.cache.model.UserCache;
 import com.zfoo.app.zapp.common.protocol.cache.refresh.RefreshCategoryCacheAsk;
 import com.zfoo.app.zapp.common.protocol.cache.refresh.RefreshUserTsCacheAsk;
 import com.zfoo.app.zapp.common.protocol.cache.refresh.RefreshWordCacheAsk;
-import com.zfoo.app.zapp.common.util.CommonUtils;
 import com.zfoo.net.NetContext;
 import com.zfoo.net.router.attachment.GatewayAttachment;
 import com.zfoo.net.router.receiver.PacketReceiver;
 import com.zfoo.net.session.model.Session;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.StringUtils;
-import com.zfoo.util.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 /**
@@ -44,35 +42,44 @@ public class CacheController {
     @Autowired
     private CacheService cacheService;
 
-    private Map<Long, UserCache> getUserCaches(Set<Long> userIds) {
-        if (CollectionUtils.isEmpty(userIds)) {
-            return Collections.EMPTY_MAP;
+    ///// 这是客户端发起请求，但是网关直接给转发过来的消息 /////
+
+    /**
+     * @param session
+     * @param request
+     * @param gatewayAttachment 看到这个参数gatewayAttachment就知道，这是客户端请求的消息，虽然客户端是连接到网关向网关发送的消息，但是网关不做处理，直接转发过来
+     */
+    @PacketReceiver
+    public void atSearchUserRequest(Session session, SearchUserRequest request, GatewayAttachment gatewayAttachment) {
+        var query = request.getQuery();
+        if (StringUtils.isBlank(query)) {
+            NetContext.getRouter().send(session, SearchUserResponse.valueOf(Collections.EMPTY_LIST), gatewayAttachment);
+            return;
         }
-        var userCacheMap = cacheService.userCaches
-                .batchGet(userIds)
-                .values()
-                .stream()
-                .collect(Collectors.toMap(key -> key.getId(), value -> value));
-        return userCacheMap;
+
+        var userCaches = cacheService.searchUser(query);
+        NetContext.getRouter().send(session, SearchUserResponse.valueOf(userCaches), gatewayAttachment);
     }
+
 
     @PacketReceiver
     public void atGetUserCacheRequest(Session session, GetUserCacheRequest request, GatewayAttachment gatewayAttachment) {
-        NetContext.getRouter().send(session, GetUserCacheResponse.valueOf(getUserCaches(request.getUserIds())), gatewayAttachment);
+        NetContext.getRouter().send(session, GetUserCacheResponse.valueOf(cacheService.getUserCaches(request.getUserIds())), gatewayAttachment);
     }
 
+    ///// 下面是自己作为服务提供者的一些api实现，别的消费者请求过来的消息 /////
 
     @PacketReceiver
     public void atGetUserCacheAsk(Session session, GetUserCacheAsk ask) {
         var userIds = ask.getUserIds();
-        NetContext.getRouter().send(session, GetUserCacheAnswer.valueOf(getUserCaches(userIds)));
+        NetContext.getRouter().send(session, GetUserCacheAnswer.valueOf(cacheService.getUserCaches(userIds)));
     }
 
     @PacketReceiver
     public void atGetUserLatestCacheAsk(Session session, GetUserLatestCacheAsk ask) {
         var userIds = ask.getUserIds();
         userIds.forEach(it -> cacheService.userCaches.invalidate(it));
-        NetContext.getRouter().send(session, GetUserLatestCacheAnswer.valueOf(getUserCaches(userIds)));
+        NetContext.getRouter().send(session, GetUserLatestCacheAnswer.valueOf(cacheService.getUserCaches(userIds)));
     }
 
     @PacketReceiver
@@ -91,7 +98,6 @@ public class CacheController {
                 .collect(Collectors.toMap(key -> key.getKey(), value -> value.getValue()));
         NetContext.getRouter().send(session, GetUserTsCacheAnswer.valueOf(userTsMap));
     }
-
 
     @PacketReceiver
     public void atRefreshUserTsCacheAsk(Session session, RefreshUserTsCacheAsk ask) {
@@ -126,41 +132,6 @@ public class CacheController {
         categories.stream().forEach(it -> cacheService.categoryCaches.invalidate(it));
     }
 
-    private List<UserCache> searchUser(String query) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.EMPTY_LIST;
-        }
-
-        var searchUserIds = new ArrayList<>(cacheService.userNameCaches.get(query));
-        if (!CommonUtils.isUserIdInRange(searchUserIds)) {
-            return Collections.EMPTY_LIST;
-        }
-
-        // 如果query是一个整数，有可能是玩家的id
-        if (NumberUtils.isLong(query)) {
-            searchUserIds.add(Long.parseLong(query));
-        }
-
-        var userCaches = cacheService.userCaches.batchGet(searchUserIds)
-                .entrySet()
-                .stream()
-                .map(it -> it.getValue())
-                .collect(Collectors.toList());
-
-        return userCaches;
-    }
-
-    @PacketReceiver
-    public void atSearchUserRequest(Session session, SearchUserRequest request, GatewayAttachment gatewayAttachment) {
-        var query = request.getQuery();
-        if (StringUtils.isBlank(query)) {
-            NetContext.getRouter().send(session, SearchUserResponse.valueOf(Collections.EMPTY_LIST), gatewayAttachment);
-            return;
-        }
-
-        var userCaches = searchUser(query);
-        NetContext.getRouter().send(session, SearchUserResponse.valueOf(userCaches), gatewayAttachment);
-    }
 
     @PacketReceiver
     public void atSearchUserAsk(Session session, SearchUserAsk ask) {
@@ -170,7 +141,7 @@ public class CacheController {
             return;
         }
 
-        var userCaches = searchUser(query);
+        var userCaches = cacheService.searchUser(query);
         NetContext.getRouter().send(session, SearchUserAnswer.valueOf(userCaches));
     }
 

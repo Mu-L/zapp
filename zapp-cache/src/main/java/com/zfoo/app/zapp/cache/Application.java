@@ -26,6 +26,7 @@ public class Application {
     public static void main(String[] args) {
         var context = new ClassPathXmlApplicationContext("application.xml");
         context.registerShutdownHook();
+        // 这个Event是Spring的Event，CacheService.java中有使用例子，这样子监听服务器启动起来时，初始化一些信息。
         context.publishEvent(new AppStartEvent(context));
     }
 

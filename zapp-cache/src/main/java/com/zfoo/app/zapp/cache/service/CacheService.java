@@ -24,6 +24,7 @@ import com.zfoo.app.zapp.common.entity.user.UserEntity;
 import com.zfoo.app.zapp.common.protocol.cache.model.CategoryVO;
 import com.zfoo.app.zapp.common.protocol.cache.model.UserCache;
 import com.zfoo.app.zapp.common.protocol.cache.model.WordVO;
+import com.zfoo.app.zapp.common.util.CommonUtils;
 import com.zfoo.event.model.event.AppStartEvent;
 import com.zfoo.net.packet.common.PairLS;
 import com.zfoo.net.packet.common.TripleLSS;
@@ -36,6 +37,7 @@ import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.util.TimeUtils;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
+import com.zfoo.util.math.NumberUtils;
 import com.zfoo.util.math.dfa.WordTree;
 import org.bson.Document;
 import org.springframework.context.ApplicationListener;
@@ -49,12 +51,53 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
+ * 缓存服务
+ * 并且监听服务器启动AppStartEvent事件
+ *
  * @author jaysunxiao
  * @version 1.0
  * @since 2019-11-08 10:59
  */
 @Component
 public class CacheService implements ICacheService, ApplicationListener<AppStartEvent> {
+    /**
+     * 单词树
+     */
+    public WordTree wordTree;
+    /**
+     * 中文正则
+     */
+    public Pattern CN_PATTERN = Pattern.compile("[\u4E00-\u9FA5]");
+    /**
+     * 敏感词excel表配置
+     */
+    @ResInjection
+    private Storage<Integer, FilterResource> filterResources;
+
+    /**
+     * 这个类创建出来后(不管加不到Spring容器中，创建出来这个实例后就被调用)
+     *
+     * @throws IOException
+     */
+    @PostConstruct
+    public void init() throws IOException {
+        LocationConstant.init();
+    }
+
+    /**
+     * 监听服务进程的启动AppStartEvent事件
+     *
+     * @param event
+     */
+    @Override
+    public void onApplicationEvent(AppStartEvent event) {
+        var tree = new WordTree();
+        var words = filterResources.getAll().stream()
+                .map(it -> it.getFilter().trim().toLowerCase())
+                .collect(Collectors.toList());
+        tree.addWords(words);
+        wordTree = tree;
+    }
 
     public SimpleCache<Long, List<Long>> userTimeSliceCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
@@ -92,10 +135,8 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
      * 缓存击穿指并发查同一条数据，缓存雪崩是不同数据都过期了，很多数据都查不到从而查数据库。
      * 解决方法：1.缓存数据的过期时间设置随机；2.设置热点数据永远不过期。
      */
-
     // 使用expireAfterAccess防止缓存击穿和缓存雪崩
     // 因为每一次访问都会重新设置过期时间，所以只要被一直访问就永远不会过期，而且还能因为重置时间，还可以保证每个缓存的过期时间不一样
-
     public SimpleCache<Long, CategoryVO> categoryCaches = SimpleCache.build(
             10 * TimeUtils.MILLIS_PER_MINUTE, 5 * TimeUtils.MILLIS_PER_MINUTE, 1_0000
             , categories -> {
@@ -337,33 +378,41 @@ public class CacheService implements ICacheService, ApplicationListener<AppStart
             }
             , key -> Collections.emptyList());
 
-    @PostConstruct
-    public void init() throws IOException {
-        LocationConstant.init();
-    }
 
+    public List<UserCache> searchUser(String query) {
+        if (StringUtils.isBlank(query)) {
+            return Collections.EMPTY_LIST;
+        }
 
-    public WordTree wordTree;
-    /**
-     * 中文正则
-     */
-    public Pattern CN_PATTERN = Pattern.compile("[\u4E00-\u9FA5]");
-    /**
-     * 下面是关键词过滤相关
-     */
+        var searchUserIds = new ArrayList<>(userNameCaches.get(query));
+        if (!CommonUtils.isUserIdInRange(searchUserIds)) {
+            return Collections.EMPTY_LIST;
+        }
 
-    @ResInjection
-    private Storage<Integer, FilterResource> filterResources;
+        // 如果query是一个整数，有可能是玩家的id
+        if (NumberUtils.isLong(query)) {
+            searchUserIds.add(Long.parseLong(query));
+        }
 
-    @Override
-    public void onApplicationEvent(AppStartEvent event) {
-        var tree = new WordTree();
-        var words = filterResources.getAll().stream()
-                .map(it -> it.getFilter().trim().toLowerCase())
+        var userCaches = this.userCaches.batchGet(searchUserIds)
+                .entrySet()
+                .stream()
+                .map(it -> it.getValue())
                 .collect(Collectors.toList());
-        tree.addWords(words);
-        wordTree = tree;
+
+        return userCaches;
     }
 
+    public Map<Long, UserCache> getUserCaches(Set<Long> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return Collections.EMPTY_MAP;
+        }
+        var userCacheMap = this.userCaches
+                .batchGet(userIds)
+                .values()
+                .stream()
+                .collect(Collectors.toMap(key -> key.getId(), value -> value));
+        return userCacheMap;
+    }
 
 }
